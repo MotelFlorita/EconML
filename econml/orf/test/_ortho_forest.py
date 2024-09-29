@@ -31,16 +31,15 @@ from sklearn.linear_model import LinearRegression, LogisticRegression, \
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.utils import check_random_state, check_array, column_or_1d
-from ..sklearn_extensions.linear_model import WeightedLassoCVWrapper
-from .._cate_estimator import BaseCateEstimator, LinearCateEstimator, TreatmentExpansionMixin
-from ._causal_tree import CausalTree
-from ..inference import NormalInferenceResults
-from ..inference._inference import Inference
-from ..utilities import (one_hot_encoder, reshape_Y_T, MAX_RAND_SEED, check_inputs, cross_product, check_input_arrays,
+from linear_model import WeightedLassoCVWrapper
+from _cate_estimator import BaseCateEstimator, LinearCateEstimator, TreatmentExpansionMixin
+from _causal_tree import CausalTree
+from _inference import NormalInferenceResults, Inference
+from utilities import (one_hot_encoder, reshape_Y_T, MAX_RAND_SEED, check_inputs, cross_product, check_input_arrays,
                          jacify_featurizer, _RegressionWrapper, ndim)
 from sklearn.model_selection import check_cv
 # TODO: consider working around relying on sklearn implementation details
-from ..sklearn_extensions.model_selection import _cross_val_predict
+from model_selection import _cross_val_predict
 
 
 def _build_tree_in_parallel(tree, Y, T, X, W,
