@@ -829,7 +829,10 @@ def _DMLOrthoForest_moment_and_mean_gradient_estimator_func(Y, T, X, W,
     Y_res, T_res = _DMLOrthoForest_get_conforming_residuals(Y, T, nuisance_estimates)
     # Compute moments
     # Moments shape is (n, d_T)
-    moments = (Y_res - np.matmul(T_res, parameter_estimate)).reshape(-1, 1) * T_res
+    tau = 0
+    e = Y_res - np.matmul(T_res, parameter_estimate)
+    #e = np.array([min(abs(i), tau) for i in e ])
+    moments = e.reshape(-1, 1) * T_res
     # Compute moment gradients
     mean_gradient = - np.matmul(T_res.T, T_res) / T_res.shape[0]
     return moments, mean_gradient

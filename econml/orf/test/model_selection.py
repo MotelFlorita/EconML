@@ -31,7 +31,7 @@ from sklearn.preprocessing import LabelEncoder, PolynomialFeatures
 from sklearn.utils import check_random_state, indexable
 from sklearn.utils.validation import _num_samples
 
-from .linear_model import WeightedLassoCVWrapper, WeightedLassoWrapper
+from linear_model import WeightedLassoCVWrapper, WeightedLassoWrapper
 
 
 def _split_weighted_sample(self, X, y, sample_weight, is_stratified=False):

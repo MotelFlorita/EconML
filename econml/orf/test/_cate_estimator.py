@@ -9,14 +9,14 @@ import numpy as np
 from functools import wraps
 from copy import deepcopy
 from warnings import warn
-from .inference import BootstrapInference
-from .utilities import (ndim, shape, parse_final_model_params, get_feature_names_or_default,
+from _inference import BootstrapInference
+from utilities import (ndim, shape, parse_final_model_params, get_feature_names_or_default,
                         inverse_onehot, Summary, get_input_columns, check_input_arrays)
-from .inference import StatsModelsInference, StatsModelsInferenceDiscrete, LinearModelFinalInference, \
+from _inference import StatsModelsInference, StatsModelsInferenceDiscrete, LinearModelFinalInference, \
     LinearModelFinalInferenceDiscrete, GenericSingleTreatmentModelFinalInference, \
     GenericModelFinalInferenceDiscrete
-from ._shap import _shap_explain_cme, _shap_explain_joint_linear_model_cate
-from .dowhy import DoWhyWrapper
+from _shap import _shap_explain_cme, _shap_explain_joint_linear_model_cate
+from dowhy import DoWhyWrapper
 
 
 class BaseCateEstimator(metaclass=abc.ABCMeta):
