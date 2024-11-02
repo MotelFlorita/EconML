@@ -472,10 +472,14 @@ class DMLOrthoForest_test(BaseOrthoForest):
         The regularization coefficient in the ell_2 penalty imposed on the
         locally linear part of the second stage fit. This is not applied to
         the local intercept, only to the coefficient of the linear component.
+    
+    #修改 不考虑T的outlier，所以这里的model_T不修改
 
     model_T : estimator, default sklearn.linear_model.LassoCV(cv=3)
         The estimator for residualizing the continuous treatment at each leaf.
         Must implement `fit` and `predict` methods.
+    
+    #修改 要考虑Y的outlier，所以这里的model_Y修改为huber_loss_lasso
 
     model_Y :  estimator, default sklearn.linear_model.LassoCV(cv=3)
         The estimator for residualizing the outcome at each leaf. Must implement
@@ -548,6 +552,7 @@ class DMLOrthoForest_test(BaseOrthoForest):
                  bootstrap=False,
                  lambda_reg=0.01,
                  model_T='auto',
+                 #修改 model_Y lasso
                  model_Y=WeightedLassoCVWrapper(cv=3),
                  model_T_final=None,
                  model_Y_final=None,
@@ -704,7 +709,7 @@ class DMLOrthoForest_test(BaseOrthoForest):
         return effects.reshape((-1,) + self._d_y + self._d_t)
     const_marginal_effect.__doc__ = BaseOrthoForest.const_marginal_effect.__doc__
 
-
+#修改[calculate nuisance estimates]的函数
 class _DMLOrthoForest_nuisance_estimator_generator:
     """Generate nuissance estimator given model inputs from the class."""
 
@@ -819,7 +824,7 @@ class _DMLOrthoForest_second_stage_parameter_estimator_gen:
         # Parameter returned is of shape (d_T, )
         return np.dot(linear_coef_estimate, X_aug)
 
-
+#修改[moment_and_mean_gradient]
 def _DMLOrthoForest_moment_and_mean_gradient_estimator_func(Y, T, X, W,
                                                             nuisance_estimates,
                                                             parameter_estimate):
