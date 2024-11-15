@@ -38,6 +38,9 @@ import statsmodels
 from joblib import Parallel, delayed
 from typing import List
 
+from sklearn.linear_model import HuberRegressor
+
+
 
 class _WeightedCVIterableWrapper(_CVIterableWrapper):
     def __init__(self, cv):
@@ -445,6 +448,124 @@ class WeightedLassoCV(WeightedModelMixin, LassoCV):
         self.cv = cv_temp
         return self
 
+        
+class WeightedHuberRegressorCV(WeightedModelMixin, HuberRegressor):
+    """Version of sklearn LassoCV that accepts weights.
+
+    .. testsetup::
+
+        import numpy as np
+        from sklearn.linear_model import lasso_path
+
+    Parameters
+    ----------
+    eps : float, optional
+        Length of the path. ``eps=1e-3`` means that
+        ``alpha_min / alpha_max = 1e-3``.
+
+    n_alphas : int, optional
+        Number of alphas along the regularization path
+
+    alphas : numpy array, optional
+        List of alphas where to compute the models.
+        If ``None`` alphas are set automatically
+
+    fit_intercept : bool, default True
+        whether to calculate the intercept for this model. If set
+        to false, no intercept will be used in calculations
+        (e.g. data is expected to be already centered).
+
+    precompute : True | False | 'auto' | array_like
+        Whether to use a precomputed Gram matrix to speed up
+        calculations. If set to ``'auto'`` let us decide. The Gram
+        matrix can also be passed as argument.
+
+    max_iter : int, optional
+        The maximum number of iterations
+
+    tol : float, optional
+        The tolerance for the optimization: if the updates are
+        smaller than ``tol``, the optimization code checks the
+        dual gap for optimality and continues until it is smaller
+        than ``tol``.
+
+    copy_X : bool, default True
+        If ``True``, X will be copied; else, it may be overwritten.
+
+    cv : int, cross-validation generator or an iterable, optional
+        Determines the cross-validation splitting strategy.
+        Possible inputs for cv are:
+        - None, to use the default 3-fold weighted cross-validation,
+        - integer, to specify the number of folds.
+        - :term:`CV splitter`,
+        - An iterable yielding (train, test) splits as arrays of indices.
+        For integer/None inputs, :class:`WeightedKFold` is used.
+
+        If None then 5 folds are used.
+
+    verbose : bool or int
+        Amount of verbosity.
+
+    n_jobs : int or None, optional
+        Number of CPUs to use during the cross validation.
+        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
+        ``-1`` means using all processors. See :term:`Glossary <n_jobs>`
+        for more details.
+
+    positive : bool, optional
+        If positive, restrict regression coefficients to be positive
+
+    random_state : int, RandomState instance, or None, default None
+            The seed of the pseudo random number generator that selects a random
+        feature to update.  If int, random_state is the seed used by the random
+        number generator; If :class:`~numpy.random.mtrand.RandomState` instance, random_state is the random
+        number generator; If None, the random number generator is the
+        :class:`~numpy.random.mtrand.RandomState` instance used by :mod:`np.random<numpy.random>`. Used when
+        ``selection='random'``.
+
+    selection : str, default 'cyclic'
+        If set to 'random', a random coefficient is updated every iteration
+        rather than looping over features sequentially by default. This
+        (setting to 'random') often leads to significantly faster convergence
+        especially when tol is higher than 1e-4.
+
+    """
+
+    def __init__(self, eps=1e-3, n_alphas=100, alphas=None, fit_intercept=True,
+                 precompute='auto', max_iter=1000, tol=1e-4,
+                 copy_X=True, cv=None, verbose=False, n_jobs=None,
+                 positive=False, random_state=None, selection='cyclic'):
+
+        super().__init__(
+            eps=eps, n_alphas=n_alphas, alphas=alphas,
+            fit_intercept=fit_intercept,
+            precompute=precompute, max_iter=max_iter, tol=tol, copy_X=copy_X,
+            cv=cv, verbose=verbose, n_jobs=n_jobs, positive=positive,
+            random_state=random_state, selection=selection)
+
+    def fit(self, X, y, sample_weight=None):
+        """Fit model with coordinate descent.
+
+        Parameters
+        ----------
+        X : ndarray or scipy.sparse matrix, (n_samples, n_features)
+            Data
+
+        y : ndarray, shape (n_samples,) or (n_samples, n_targets)
+            Target. Will be cast to X's dtype if necessary
+
+        sample_weight : numpy array of shape [n_samples]
+                        Individual weights for each sample.
+                        The weights will be normalized internally.
+        """
+        # Make weighted splitter
+        cv_temp = self.cv
+        self.cv = _weighted_check_cv(self.cv, random_state=self.random_state).split(X, y, sample_weight=sample_weight)
+        # Fit weighted model
+        self._fit_weighted_linear_model(X, y, sample_weight)
+        self.cv = cv_temp
+        return self
+    
 
 class WeightedMultiTaskLassoCV(WeightedModelMixin, MultiTaskLassoCV):
     """Version of sklearn MultiTaskLassoCV that accepts weights.

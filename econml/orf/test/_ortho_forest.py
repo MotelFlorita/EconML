@@ -41,6 +41,7 @@ from sklearn.model_selection import check_cv
 # TODO: consider working around relying on sklearn implementation details
 from model_selection import _cross_val_predict
 
+from sklearn.linear_model import HuberRegressor
 
 def _build_tree_in_parallel(tree, Y, T, X, W,
                             nuisance_estimator, parameter_estimator, moment_and_mean_gradient_estimator):
